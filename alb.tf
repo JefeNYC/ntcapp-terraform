@@ -1,0 +1,57 @@
+# Target group
+
+resource "aws_lb_target_group" "tg1" {
+  name        = "ntc-tg"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "instance"
+  vpc_id      = aws_vpc.vpc1.id
+  health_check {
+    enabled             = true
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    interval            = 10
+    matcher             = 200
+    path                = "/"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 6
+  }
+  depends_on = [aws_vpc.vpc1]
+}
+
+# Attach EC2 to Target Group
+
+resource "aws_lb_target_group_attachment" "tg-attach" {
+  target_group_arn = aws_lb_target_group.tg1.arn
+  target_id        = aws_instance.server1.id
+  port             = 80
+}
+
+resource "aws_lb_target_group_attachment" "tg-attach2" {
+  target_group_arn = aws_lb_target_group.tg1.arn
+  target_id        = aws_instance.server2.id
+  port             = 80
+}
+
+# ALB
+
+resource "aws_lb" "name" {
+  name                       = "ntc-alb"
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.alb_sg.id]
+  subnets                    = [aws_subnet.public1.id, aws_subnet.public2.id]
+  enable_deletion_protection = false
+}
+
+# Create listener
+
+resource "aws_lb_listener" "name" {
+  load_balancer_arn = aws_lb.name.arn
+  port              = 80
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg1.arn
+  }
+}
