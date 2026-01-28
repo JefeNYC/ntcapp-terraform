@@ -1,5 +1,5 @@
-# ntcapp-terraform-wk10
-ntcapp terraform week 10
+# ntcapp-terraform
+ntcapp terraform
 
-Before terraform workflow go to AWS & manually create S3 bucket named "wk10-ntc-app-bucket"
+Before terraform workflow go to AWS & manually create S3 bucket named "ntc-app-bucket"
 Delete bucket after terraform destroy 
